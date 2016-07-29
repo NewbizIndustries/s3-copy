@@ -2,6 +2,7 @@ package de.is24.s3;
 
 import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.S3ResponseMetadata;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -48,9 +49,15 @@ public class CopyJob {
                         .withNewObjectMetadata(objectMetadata);
         try {
             s3Client.copyObject(copyObjectRequest);
-            System.out.println("copied " + filename);
+            System.out.print("copied " + filename);
         } catch (AmazonS3Exception s3Exception) {
-            System.err.println("failed to copy " + filename);
+            System.err.print("failed to copy " + filename);
+        }
+        final S3ResponseMetadata metadata = s3Client.getCachedResponseMetadata(copyObjectRequest);
+        if (metadata == null) {
+            System.err.println("  // no metadata found");
+        } else {
+            System.out.println("  // requestID: " + metadata.getRequestId());
         }
     }
 }
